@@ -5,6 +5,7 @@ entity IC_Counter4 is
 port(CLK:in std_Logic;
 	 CLR:in std_Logic;
 	 Selout:in std_Logic;
+	 En:in std_Logic;
 	 A:out std_logic;
 	 B:out std_logic;
 	 C:out std_logic;
@@ -17,33 +18,41 @@ signal cnt:std_Logic_vector(1 downto 0):="00";
 begin
 	process(CLK,CLR)
 		begin
-		if CLR='1' then
-			cnt<="00";
-		elsif CLK='0' and CLK'event then
-			cnt<=cnt+1;
+		if En='1' then
+			if CLR='1' then
+				cnt<="00";
+			elsif CLK='0' and CLK'event then
+				cnt<=cnt+1;
+			end if;
+		else
+			if CLR='1' then
+				cnt<="00";
+			end if;
 		end if;
 	end process;
 	process(cnt)
 		variable result_Out:std_Logic_vector(3 downto 0);
 	begin
 		if Selout='0' then
-		result_Out:="1111";
-	elsif Selout='1' then
-		result_Out:="0000";
-	end if;
-	case cnt is
-		when "00" => --A
-			result_Out(0):=Selout;
-		when "01" => --B
-			result_Out(1):=Selout;
-		when "10" => --C
-			result_Out(2):=Selout;
-		when "11" => --D
-			result_Out(3):=Selout;
-	end case;
-		A<=result_Out(0);
-		B<=result_Out(1);
-		C<=result_Out(2);
-		D<=result_Out(3);
+			result_Out:="1111";
+		elsif Selout='1' then
+			result_Out:="0000";
+		end if;
+		if En='1' and CLR='0' then
+			case cnt is
+				when "00" => --A
+					result_Out(0):=Selout;
+				when "01" => --B
+					result_Out(1):=Selout;
+				when "10" => --C
+					result_Out(2):=Selout;
+				when "11" => --D
+					result_Out(3):=Selout;
+			end case;
+		end if;
+			A<=result_Out(0);
+			B<=result_Out(1);
+			C<=result_Out(2);
+			D<=result_Out(3);
 	end process;
 end Data;
